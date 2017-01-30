@@ -16,12 +16,14 @@ YEAR_IN_SCHOOL_CHOICES = (
 class QuoteCreate(CreateView):
     model = Quote
     fields = ['customer','title','total','status','createdby']
-    
+    noodles = 'spaghetti'
     def form_valid(self,form):
         form.instance.createdby = self.request.user
         return super(QuoteCreate,self).form_valid(form)
 
-
+class QuoteLineform(ModelForm):
+    class meta:
+        fields = ['item','note','cost','multiplier','sell_price','hideonPrint','hidePriceOnPrint']
 
 
 
@@ -54,17 +56,17 @@ class EditModelForm(ModelForm):
 
 
 class Qform(ModelForm):
-    #readonly  = ('customer','title','total','status',) #just do on post if edit button pressed then readonly tuple is empty...
+    def __init__(self, *args, **kwargs):
+        super(Qform, self).__init__(*args, **kwargs)
+        self.fields['title'].queryset= Quote.objects.filter(Q(name='Testquote'))
+    
+    
+    
     class Meta:
         model = Quote
         fields = ['customer','title','total','status']
-    
         
-        
-        
-        #disabeld = {'customer':True }
-                    # 'title':edit_state ,'total':edit_state ,'status':edit_state }
-    
+       
     
 
 

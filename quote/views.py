@@ -3,7 +3,7 @@ from django.forms import formset_factory, modelformset_factory
 from django.views.generic import DetailView
 
 
-from .forms import QuoteForm ,TestForm, Qform
+from .forms import QuoteForm ,TestForm, Qform 
 from .m8requests2 import update_local_tables
 from .models import Company, Company_Contact, Quote, LineItem
 from .forms import QuoteForm ,QuoteCreate
@@ -15,10 +15,68 @@ class MyQuoteCreate(QuoteCreate):
       template_name = 'testform.html'
 
 
+def formsetView(request):
+    quotelineitemset = modelformset_factory(LineItem, exclude=['parent'], extra= 3)
+
+    return render(request,'testform.html',{'formimade':quotelineitemset})
+
 
 def home(request):
-    myform = TestForm
+    if request.method == "POST":
+        myform =  Qform(request.POST)
+        if myform.is_valid():
+            print(myform.cleaned_data)#print(myform.cleaned_data)
+            print (myform.cleaned_data['total']+3)
+            print (myform.cleaned_data['customer'])
+            
+        
+    else:
+        myform = Qform()
+    
     return render (request, 'testform.html',{'formimade':myform})
+
+
+def testquote(request):
+    if request.method =='POST':
+       form = Qform(request.POST)
+       if 'edit' in request.POST:
+           for field in form.fields: 
+                   form.fields[field].widget.attrs['disabled'] = False
+                   return render (request, 'testform.html',{'form':form})
+       if form.is_valid():
+            
+            if 'commit' in request.POST:
+               print('Commit Button')
+            elif 'submit' in request.POST:
+               print('submit')
+       print (request.POST)
+            
+    else:
+       form = Qform
+       
+       for field in form.fields: #do not allow edits on open
+           form.fields[field].widget.attrs['disabled'] = True
+           
+    
+    return render (request, 'testform.html',{'form':form})
+
+
+def qoutedoubleform(request):
+    # topform = Quote.objects.get(title = 'Testquote')
+    # lineform  = linetiem.objects.get.filter(quote)
+    # set all items to no edit
+    # if request POST and edit button set all items to editable and redo edit button to SAvE
+    # 
+    # if request post save button save lineitems save topfor
+    
+    return render (request,'quoteform.html',{'topform':topform,'lineform':lineform})
+
+
+
+
+
+
+
 
 def qfrm(request):
     quote = Quote.objects.get(title = 'Testing')
@@ -27,8 +85,6 @@ def qfrm(request):
     for field in form.fields: #do not allow edits on open
         form.fields[field].widget.attrs['disabled'] = True
     return render(request,'testform.html',{'formimade':form})
-
-
 
 
 
