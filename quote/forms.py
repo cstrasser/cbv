@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.views.generic.edit import CreateView
+from django.views.generic.detail import DetailView
 
 
 
@@ -54,19 +55,24 @@ class EditModelForm(ModelForm):
         return data
 
 
-
+#==============================================
 class Qform(ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(Qform, self).__init__(*args, **kwargs)
-        self.fields['title'].queryset= Quote.objects.filter(Q(name='Testquote'))
-    
-    
-    
+    # # def __init__(self, *args, **kwargs):
+    # #     super(Qform, self).__init__(*args, **kwargs)
+    # #     self.fields['title'].queryset= Quote.objects.filter(Q(name='Testquote'))
+    # # 
+    # # 
     class Meta:
         model = Quote
         fields = ['customer','title','total','status']
         
-       
+        
+class Qformdetail(DetailView):
+    class Meta:
+        model = Quote
+        fields = ['customer','title','total','status']
+    
+#=====================================================      
     
 
 

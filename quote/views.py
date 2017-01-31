@@ -1,12 +1,12 @@
-from django.shortcuts import render, Http404
+from django.shortcuts import render, Http404 , get_object_or_404
 from django.forms import formset_factory, modelformset_factory
 from django.views.generic import DetailView
 
 
-from .forms import QuoteForm ,TestForm, Qform 
+from .forms import QuoteForm ,TestForm, Qform, Qformdetail
 from .m8requests2 import update_local_tables
 from .models import Company, Company_Contact, Quote, LineItem
-from .forms import QuoteForm ,QuoteCreate
+from .forms import  QuoteCreate 
 
 # class QuoteDetail(DetailView):
 #     model = Quote
@@ -37,8 +37,9 @@ def home(request):
 
 
 def testquote(request):
+    gottenquote = get_object_or_404(Quote, title ='Testquote')
     if request.method =='POST':
-       form = Qform(request.POST)
+       form = Qform(instance =gottenquote)
        if 'edit' in request.POST:
            for field in form.fields: 
                    form.fields[field].widget.attrs['disabled'] = False
@@ -52,8 +53,8 @@ def testquote(request):
        print (request.POST)
             
     else:
-       form = Qform
-       
+       form = Qform(instance =gottenquote)
+      
        for field in form.fields: #do not allow edits on open
            form.fields[field].widget.attrs['disabled'] = True
            
