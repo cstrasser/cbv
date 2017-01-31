@@ -56,7 +56,7 @@ class Item(models.Model): #additional information requied on an M8 part
     
     def __str__(self):
         return self.item_code
-    
+#=============================================================================   
 class LineItem(models.Model):
     parent               = models.ForeignKey('Quote', default = 1)
     lineNumber           = models.IntegerField()
@@ -75,15 +75,19 @@ class LineItem(models.Model):
         #return (str(self.parent.pk ) +'-'+str(self.lineNumber))
         return(str(self.lineNumber)+' '+str(self.item))
     
-    def sell_price2(self): #probably shoud make this calculation on save override method
+    @property
+    def extended_price(self):
+        return(self.cost * self.multiplier * self.qty)
+    
+    def sell_price2(self): #probably should make this calculation on save override method
         if multiplier == 0: #if multiplier set to 0 this is signal from user that sell price is fixed 
             return (self.sell_price)
         else:       
-            return(self.sell_price * self.multiplier)
+            return(self.cost * self.multiplier)
    
    # class Meta:
     #    Abstract= True # needs abstract to allow Lineitem on both Quote and PO
-        
+ #======================================================       
 
 class Quote(models.Model):
     #use ID for quote number
@@ -101,7 +105,8 @@ class Quote(models.Model):
     active               = models.BooleanField(default = True)
     status               = models.CharField(max_length = 15, default = '', choices = [
                                                                 ('DRAFT','Draft'),('WAITING','Waiting'),
-                                                                ('ORDER','Order')])   
+                                                                ('ORDER','Order'),('DECLINED','Declined'),
+                                                                ('STALE','Stale')])   
     
     
     def __str__(self):

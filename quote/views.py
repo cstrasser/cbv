@@ -1,7 +1,7 @@
 from django.shortcuts import render, Http404 , get_object_or_404
 from django.forms import formset_factory, modelformset_factory
 from django.views.generic import DetailView
-
+from django.forms import inlineformset_factory
 
 from .forms import QuoteForm ,TestForm, Qform, Qformdetail
 from .m8requests2 import update_local_tables
@@ -22,6 +22,8 @@ def formsetView(request):
 
 
 def home(request):
+    lineformset = inlineformset_factory(Quote,LineItem,fields=('lineNumber','item','qty'))  
+    gottenquote = get_object_or_404(Quote, title ='Testquote')
     if request.method == "POST":
         myform =  Qform(request.POST)
         if myform.is_valid():
@@ -31,39 +33,37 @@ def home(request):
             
         
     else:
-        myform = Qform()
+        formset = lineformset(instance =gottenquote)     
+        myform = Qform(instance =gottenquote)
     
-    return render (request, 'testform.html',{'formimade':myform})
+    return render (request, 'testform.html',{'form':formset,'topform':myform})
 
-
-def testquote(request):
+#==========================================================
+def editbutton(request): #wohoo this works .as long as there is a testquote .. on open u cant edit then press edit button and then all fields are editable
+    
     gottenquote = get_object_or_404(Quote, title ='Testquote')
     if request.method =='POST':
        form = Qform(instance =gottenquote)
        if 'edit' in request.POST:
-           for field in form.fields: 
+           for field in form.fields: #make fields editable now
                    form.fields[field].widget.attrs['disabled'] = False
                    return render (request, 'testform.html',{'form':form})
-       if form.is_valid():
-            
-            if 'commit' in request.POST:
-               print('Commit Button')
-            elif 'submit' in request.POST:
-               print('submit')
-       print (request.POST)
-            
+                  
     else:
        form = Qform(instance =gottenquote)
-      
        for field in form.fields: #do not allow edits on open
            form.fields[field].widget.attrs['disabled'] = True
            
-    
     return render (request, 'testform.html',{'form':form})
+#==================================================
+
+
+
+
 
 
 def qoutedoubleform(request):
-    # topform = Quote.objects.get(title = 'Testquote')
+     # topform = Quote.objects.get(title = 'Testquote')
     # lineform  = linetiem.objects.get.filter(quote)
     # set all items to no edit
     # if request POST and edit button set all items to editable and redo edit button to SAvE

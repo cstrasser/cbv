@@ -2,10 +2,10 @@ from django import forms
 from django.forms import ModelForm
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
+from django.forms import inlineformset_factory
 
 
-
-from .models import Quote
+from .models import Quote, LineItem
 
 YEAR_IN_SCHOOL_CHOICES = (
     ('FR', 'Freshman'),
@@ -22,9 +22,9 @@ class QuoteCreate(CreateView):
         form.instance.createdby = self.request.user
         return super(QuoteCreate,self).form_valid(form)
 
-class QuoteLineform(ModelForm):
-    class meta:
-        fields = ['item','note','cost','multiplier','sell_price','hideonPrint','hidePriceOnPrint']
+
+
+
 
 
 
@@ -39,13 +39,13 @@ class TestForm(forms.Form):
                                   ,disabled = edit_state)
     
 
-class EditModelForm(ModelForm):
+class EditModelForm(ModelForm): # hang onto this has some good ideas
 
     def __init__(self, *arg, **kwrg):
         super(EditModelForm, self).__init__(*arg, **kwrg)
         if hasattr(self, 'readonly'):
             for x in self.readonly:
-                self.fields[x].widget.attrs['disabled'] = 'disabled'
+                self.fields[x].widget.attrs['disabled'] = True
 
     def clean(self):
         data = super(EditModelForm, self).clean()
@@ -57,11 +57,6 @@ class EditModelForm(ModelForm):
 
 #==============================================
 class Qform(ModelForm):
-    # # def __init__(self, *args, **kwargs):
-    # #     super(Qform, self).__init__(*args, **kwargs)
-    # #     self.fields['title'].queryset= Quote.objects.filter(Q(name='Testquote'))
-    # # 
-    # # 
     class Meta:
         model = Quote
         fields = ['customer','title','total','status']
@@ -73,8 +68,38 @@ class Qformdetail(DetailView):
         fields = ['customer','title','total','status']
     
 #=====================================================      
-    
+class QuoteLineform(ModelForm):
+    class meta:
+        fields = ['item','note','cost','multiplier','sell_price','hideonPrint','hidePriceOnPrint']
+ 
 
+
+      #inlineformset_factory(Quote,LineItem,fields=('linenumber','item','qty'))
+ 
+
+# from quote.models import Quote
+# from quote.models import LineItem 
+# from django.forms import inlineformset_factory
+# lineformset = inlineformset_factory(Quote,LineItem,fields=('lineNumber','item','qty'))
+# from django.shortcuts import render, Http404 , get_object_or_404
+# gottenquote = get_object_or_404(Quote, title ='Testquote')
+# formset = lineformset(instance =gottenquote)
+# print(formset)
+#the above works in the shell ....
+
+
+
+
+
+
+class QuoteForm(forms.ModelForm):
+    
+    class Meta:
+        Model = Quote
+        exclude =  ['m8_CustomerUUID','related_M8UUID']
+        
+        
+        
 
  # dateCreated = models.DateTimeField(auto_now_add = True)
  #    createdby = models.ForeignKey(User)
@@ -86,9 +111,3 @@ class Qformdetail(DetailView):
  #    note = models.TextField( blank = True)
  #    private_Note = models.TextField(blank = True)
  #    active = models.BooleanField(default = True)    
-
-class QuoteForm(forms.ModelForm):
-    
-    class Meta:
-        Model = Quote
-        exclude =  ['m8_CustomerUUID','related_M8UUID']
